@@ -15,13 +15,14 @@ package main
 
 import (
     "fmt"
+    "math/big"
     "sort"
     "github.com/drinkcoffee/density/internal/density"
 )
 
-const NUM_NODES = 100
-const DHT_SPAN = 16
-const WORD_SIZE = 32  // 32 bytes
+const numNodes = 100
+const dhtSpan = 16
+const wordSize = 32  // 32 bytes
 
 
 
@@ -29,9 +30,9 @@ func main() {
     fmt.Println("Gateway Id Density")
     fmt.Println()
 
-    fmt.Println ("Start by generating", NUM_NODES, "random numbers")
-    var gatewayIds = density.NewGatewayIds(WORD_SIZE)
-    for i := 0; i < NUM_NODES; i++ {
+    fmt.Println ("Start by generating", numNodes, "random numbers")
+    var gatewayIds = density.NewGatewayIds(wordSize)
+    for i := 0; i < numNodes; i++ {
         gatewayIds.AddRandom()
     }
     fmt.Println()
@@ -40,8 +41,22 @@ func main() {
     sort.Sort(gatewayIds);
     gatewayIds.PrintAll()
 
+
+    var numRange = new(big.Int)
+    numRange.Exp(big.NewInt(2), big.NewInt(8 * wordSize), nil)
+    
+    var temp1 = new(big.Int)
+    temp1.Div(numRange, big.NewInt(numNodes))
+    var windowSize = new(big.Int)
+    windowSize.Mul(temp1, big.NewInt(dhtSpan))
+
+    fmt.Printf("Window Size: 0x%x\n", &windowSize)
+
+
+
+
     // ids := []string{ } 
-    // for i := 0; i < NUM_NODES; i++ {
+    // for i := 0; i < numNodes; i++ {
     //     var z string
     //     z = existingGatewayIds[i].Text(10)
     //     ids = append(ids, z)
@@ -60,7 +75,7 @@ func main() {
 
 
 //     fmt.Println("Sorted list of Gateway Ids")
-//     for i := 0; i < NUM_NODES; i++ {
+//     for i := 0; i < numNodes; i++ {
 // //        fmt.Printf("Existing Gateway Id: 0x%x\n", existingGatewayIds[i])
 //         fmt.Println("Existing Gateway Id: 0x%x\n", existingGatewayIds[i])
 //     }
