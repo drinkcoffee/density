@@ -17,7 +17,7 @@ type GatewayIds struct {
 
 
 // Create a new instance
-func newGatewayIds(int wordSize) *GatewayIds {
+func NewGatewayIds(wordSize int64) *GatewayIds {
 	max.Exp(big.NewInt(2), big.NewInt(8 * wordSize), nil).Sub(max, big.NewInt(1))
     fmt.Printf("Max: 0x%x\n", max)
 
@@ -30,6 +30,7 @@ func newGatewayIds(int wordSize) *GatewayIds {
 func (this *GatewayIds) AddRandom() {
 	n, _ := rand.Int(rand.Reader, max)
 	this.ids = append(this.ids, *n)
+	fmt.Printf(" New randomly generated Gateway Id: 0x%x\n", &this.ids[len(this.ids) - 1])
 }
 
 // Len is the number of elements in the collection.
