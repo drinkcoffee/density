@@ -1,4 +1,4 @@
-package main
+package density
 
 import (
     "crypto/rand"
@@ -17,8 +17,8 @@ type GatewayIds struct {
 
 
 // Create a new instance
-func newGatewayIds() *GatewayIds {
-	max.Exp(big.NewInt(2), big.NewInt(8 * WORD_SIZE), nil).Sub(max, big.NewInt(1))
+func newGatewayIds(int wordSize) *GatewayIds {
+	max.Exp(big.NewInt(2), big.NewInt(8 * wordSize), nil).Sub(max, big.NewInt(1))
     fmt.Printf("Max: 0x%x\n", max)
 
 	var gatewayIds = GatewayIds{}

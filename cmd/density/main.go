@@ -5,6 +5,7 @@ import (
     "fmt"
     "math/big"
     "sort"
+    "github.com/drinkcoffee/density"
 )
 
 const NUM_NODES = 100
@@ -18,12 +19,12 @@ func main() {
     fmt.Println ("start by generating", NUM_NODES, "random numbers")
     fmt.Println()
 
-    var existingGatewayIds[NUM_NODES] *big.Int
+    var gatewayIds := newGatewayIds()
 
-    max := new(big.Int)
-    max.Exp(big.NewInt(2), big.NewInt(256), nil).Sub(max, big.NewInt(1))
     
     for i := 0; i < NUM_NODES; i++ {
+        gatewayIds.AddRandom()
+
         //Generate cryptographically strong pseudo-random between 0 - max
         n, err := rand.Int(rand.Reader, max)
         existingGatewayIds[i] = n
