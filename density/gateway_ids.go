@@ -7,7 +7,6 @@ import (
     "sort"
 )
 
-const WORD_SIZE = 32  // 32 bytes
 var max = new(big.Int)
 
 
@@ -42,10 +41,12 @@ func (this *GatewayIds) Len() int {
 // Less reports whether the element with
 // index i should sort before the element with index j.
 func (this *GatewayIds)  Less(i, j int) bool {
-	return true
+	return this.ids[i].Cmp(&this.ids[j]) == -1
 }
 	
 // Swap swaps the elements with indexes i and j.
 func (this *GatewayIds) Swap(i, j int) {
-
+	temp := this.ids[i]
+	this.ids[i] = this.ids[j]
+	this.ids[i] = temp
 }
