@@ -20,7 +20,7 @@ import (
     "github.com/drinkcoffee/density/internal/density"
 )
 
-const numNodes = 100
+const numNodes = 64
 const dhtSpan = 16
 const wordSize = 32  // 32 bytes
 
@@ -44,13 +44,22 @@ func main() {
 
     var numRange = new(big.Int)
     numRange.Exp(big.NewInt(2), big.NewInt(8 * wordSize), nil)
+    fmt.Printf("Num Range: 0x%x\n", numRange)
     
-    var temp1 = new(big.Int)
-    temp1.Div(numRange, big.NewInt(numNodes))
     var windowSize = new(big.Int)
-    windowSize.Mul(temp1, big.NewInt(dhtSpan))
+    windowSize.Mul(numRange, big.NewInt(dhtSpan)).Div(windowSize, big.NewInt(numNodes))
+    fmt.Printf("Window Size: 0x%x\n", windowSize)
 
-    fmt.Printf("Window Size: 0x%x\n", &windowSize)
+    var stepSize = new(big.Int)
+    stepSize.Div(numRange, big.NewInt(numNodes * 2))
+    fmt.Printf("Step Size: 0x%x\n", stepSize)
+
+    var offset = *big.NewInt(0)
+    for offset.Cmp(numRange) == -1 {
+        fmt.Printf(" Weight: %d\n", gatewayIds.NumIdsInRange(&offset, windowSize))
+
+        offset.Add(&offset, stepSize)
+    }
 
 
 

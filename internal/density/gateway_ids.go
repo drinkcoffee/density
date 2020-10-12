@@ -18,7 +18,7 @@ type GatewayIds struct {
 
 // NewGatewayIds is used to create a new instance.
 func NewGatewayIds(wordSize int64) *GatewayIds {
-	max.Exp(big.NewInt(2), big.NewInt(8 * wordSize), nil).Sub(max, big.NewInt(1))
+	max.Exp(big.NewInt(2), big.NewInt(8 * wordSize), nil)
     fmt.Printf("Max: 0x%x\n", max)
 
 	var gatewayIds = GatewayIds{}
@@ -31,7 +31,7 @@ func NewGatewayIds(wordSize int64) *GatewayIds {
 func (g *GatewayIds) AddRandom() {
 	n, _ := rand.Int(rand.Reader, max)
 	g.ids = append(g.ids, *n)
-	fmt.Printf(" New randomly generated Gateway Id: 0x%x\n", &g.ids[len(g.ids) - 1])
+//	fmt.Printf(" New randomly generated Gateway Id: 0x%x\n", &g.ids[len(g.ids) - 1])
 }
 
 // PrintAll prints out all of the ids.
@@ -40,6 +40,28 @@ func (g *GatewayIds) PrintAll() {
 		fmt.Printf(" Gateway Id: 0x%x\n", &g.ids[i])
 	}
 }
+
+// NumIdsInRange returns the number of ids in the range offset to offset + windowASize mod the number range
+func (g *GatewayIds) NumIdsInRange(offset, windowSize *big.Int) (int) {
+	// Find the first index in the array where the id is larger than offset
+	startIndex := sort.Search(g.Len(), func(i int) bool { return g.ids[i].Cmp(offset) == 1})
+
+	var endOffset = new(big.Int)
+    endOffset.Add(offset, windowSize)
+	endIndex := sort.Search(g.Len(), func(i int) bool { return g.ids[i].Cmp(endOffset) == 1})
+	extraGivenWrapAround := 0;
+	if max.Cmp(endOffset) == -1 {
+		// fmt.Printf(" max: 0x%x\n", max)
+		// fmt.Printf(" endOffset: 0x%x\n", endOffset)
+		endOffset.Sub(endOffset, max)
+		extraGivenWrapAround = sort.Search(g.Len(), func(i int) bool { return g.ids[i].Cmp(endOffset) == 1})
+	}
+
+
+
+	return endIndex - startIndex + extraGivenWrapAround
+}
+
 
 // Len is the number of elements in the collection.
 // Needed to support sort.Interface
