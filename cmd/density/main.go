@@ -27,18 +27,18 @@ const WORD_SIZE = 32  // 32 bytes
 
 func main() {
     fmt.Println("Gateway Id Density")
-    fmt.Println ("start by generating", NUM_NODES, "random numbers")
     fmt.Println()
 
+    fmt.Println ("Start by generating", NUM_NODES, "random numbers")
     var gatewayIds = density.NewGatewayIds(WORD_SIZE)
-
-    
     for i := 0; i < NUM_NODES; i++ {
         gatewayIds.AddRandom()
     }
     fmt.Println()
 
+    fmt.Println ("Sort them")
     sort.Sort(gatewayIds);
+    gatewayIds.PrintAll()
 
     // ids := []string{ } 
     // for i := 0; i < NUM_NODES; i++ {
