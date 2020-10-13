@@ -13,6 +13,7 @@ var max = new(big.Int)
 // GatewayIds is a sortable array of big integers.
 type GatewayIds struct {
 	ids[] big.Int
+	sorted bool
 }
 
 
@@ -23,6 +24,8 @@ func NewGatewayIds(wordSize int64) *GatewayIds {
 
 	var gatewayIds = GatewayIds{}
 	gatewayIds.ids = []big.Int{ } 
+	gatewayIds.sorted = true
+
 	var _ sort.Interface = &gatewayIds  // Enforce interface compliance
 	return &gatewayIds
 }
@@ -32,6 +35,13 @@ func (g *GatewayIds) AddRandom() {
 	n, _ := rand.Int(rand.Reader, max)
 	g.ids = append(g.ids, *n)
 //	fmt.Printf(" New randomly generated Gateway Id: 0x%x\n", &g.ids[len(g.ids) - 1])
+	g.sorted = false
+}
+
+// Get one of the indices
+// NOTE: There is no bounds checking on index!
+func (g *GatewayIds) Get(index int) (big.Int) {
+	return g.ids[index]
 }
 
 // PrintAll prints out all of the ids.
@@ -56,12 +66,19 @@ func (g *GatewayIds) NumIdsInRange(offset, windowSize *big.Int) (int) {
 		endOffset.Sub(endOffset, max)
 		extraGivenWrapAround = sort.Search(g.Len(), func(i int) bool { return g.ids[i].Cmp(endOffset) == 1})
 	}
-
-
-
 	return endIndex - startIndex + extraGivenWrapAround
 }
 
+
+// Sort orders the ids from lowest to highest
+func (g *GatewayIds) Sort() {
+	sort.Sort(g)
+	g.sorted = true
+}
+
+func (g *GatewayIds) isSorted() (bool) {
+	return g.sorted
+}
 
 // Len is the number of elements in the collection.
 // Needed to support sort.Interface

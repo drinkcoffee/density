@@ -16,7 +16,6 @@ package main
 import (
     "fmt"
     "math/big"
-    "sort"
     "github.com/drinkcoffee/density/internal/density"
 )
 
@@ -38,7 +37,7 @@ func main() {
     fmt.Println()
 
     fmt.Println ("Sort them")
-    sort.Sort(gatewayIds);
+    gatewayIds.Sort();
     gatewayIds.PrintAll()
 
 
@@ -54,45 +53,89 @@ func main() {
     stepSize.Div(numRange, big.NewInt(numNodes * 2))
     fmt.Printf("Step Size: 0x%x\n", stepSize)
 
+    fmt.Println("Weightings")
+    var indicesWithLowestNumIdsInRange []int = nil
+    lowestNumIdsInRange := numNodes
     var offset = *big.NewInt(0)
+    index := 0
     for offset.Cmp(numRange) == -1 {
-        fmt.Printf(" Weight: %d\n", gatewayIds.NumIdsInRange(&offset, windowSize))
+        numIdsInRange := gatewayIds.NumIdsInRange(&offset, windowSize)
+        // Print out comma separated values of index of the scan and the number of ids in the range.
+        fmt.Printf("%d, %d\n", index, numIdsInRange)
 
+        if (numIdsInRange == lowestNumIdsInRange) {
+            indicesWithLowestNumIdsInRange = append(indicesWithLowestNumIdsInRange, index)
+        }
+
+        if (numIdsInRange < lowestNumIdsInRange) {
+            lowestNumIdsInRange = numIdsInRange
+            indicesWithLowestNumIdsInRange = nil
+            indicesWithLowestNumIdsInRange = append(indicesWithLowestNumIdsInRange, index)
+        }
+
+        index++
         offset.Add(&offset, stepSize)
     }
 
+    for i, s := range indicesWithLowestNumIdsInRange {
+        fmt.Println(i, s)
+    }
+
+    // Find the largest contiguous group of indices that have the lowest number of Ids in range
+    startOfLongestContiguousRun := 0
+    longestLenOfContiguousRun := 1
+    lenOfContiguousRun := 1
+    inContiguousRun := true
+    for i := 1; i < len(indicesWithLowestNumIdsInRange); i++ {
+        if (indicesWithLowestNumIdsInRange[i] - indicesWithLowestNumIdsInRange[i-1] == 1) {
+            // Is contiguous
+            if (inContiguousRun) {
+                lenOfContiguousRun++
+                if (longestLenOfContiguousRun < lenOfContiguousRun) {
+                    longestLenOfContiguousRun = lenOfContiguousRun
+                    startOfLongestContiguousRun = i - lenOfContiguousRun
+                }
+            } else {
+                lenOfContiguousRun = 1
+                inContiguousRun = true
+            }
+        } else {
+            inContiguousRun = false
+        }
+    }
+    fmt.Printf("startOfLongestContiguousRun: %d\n", startOfLongestContiguousRun)
+    fmt.Printf("longestLenOfContiguousRun: %d\n", longestLenOfContiguousRun)
+
+    // Find the largest gap in the contiguous run of low density
+    var largestGap big.Int
+    largestGapIndex := startOfLongestContiguousRun
+    for i := startOfLongestContiguousRun; i < startOfLongestContiguousRun + longestLenOfContiguousRun; i++ {
+        low := gatewayIds.Get(i)
+        next := (i + 1) % numNodes
+        fmt.Printf("i %d, next %d\n", i, next)
+        high := gatewayIds.Get(next)
+        var diff big.Int
+        diff.Sub(&high, &low)
+        fmt.Printf("Low:       0x%x\n", &low)
+        fmt.Printf("High:      0x%x\n", &high)
+        fmt.Printf("Diff %d, %d: 0x%x\n", i, i+1, &diff)
+
+        if largestGap.Cmp(&diff) == -1 {
+            largestGap = diff
+            largestGapIndex = i
+        }
+    }
+
+    var halfOfLargestGap big.Int
+    halfOfLargestGap.Div(&largestGap, big.NewInt(2))
+    valStartOfLargestGapIndex := gatewayIds.Get(largestGapIndex)
+    var ideal  big.Int
+    ideal.Add(&valStartOfLargestGapIndex, &halfOfLargestGap)
 
 
+    fmt.Printf("Ideal:     0x%x\n", &ideal)
 
-    // ids := []string{ } 
-    // for i := 0; i < numNodes; i++ {
-    //     var z string
-    //     z = existingGatewayIds[i].Text(10)
-    //     ids = append(ids, z)
-    // }
-
-
-    // sort.Strings(ids)
-
-   
-    // fmt.Println("Sorted list of Gateway Ids")
-    // for i := range ids {
-    //     fmt.Printf("%v", ids[i])
-    //     fmt.Println()
-    // }
-
-
-
-//     fmt.Println("Sorted list of Gateway Ids")
-//     for i := 0; i < numNodes; i++ {
-// //        fmt.Printf("Existing Gateway Id: 0x%x\n", existingGatewayIds[i])
-//         fmt.Println("Existing Gateway Id: 0x%x\n", existingGatewayIds[i])
-//     }
-
-
-
-
-
+    
 
 
 
