@@ -44,7 +44,7 @@ func (s *SortedArrayBigInts) Get(index int) (big.Int) {
 // PrintAll prints out all of the ids.
 func (s *SortedArrayBigInts) PrintAll() {
 	for i := 0; i < len(s.ids); i++ {
-		fmt.Printf(" %d, 0x%x\n", i, &s.ids[i])
+		fmt.Printf(" %5d, %#x\n", i, &s.ids[i])
 	}
 }
 

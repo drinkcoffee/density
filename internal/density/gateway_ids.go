@@ -11,7 +11,7 @@ import (
 // - generate random number (the private key)
 // - derive the public key / scalar multiply using the private key as the scalar
 // - message digest the public key
-func CreateRandomIdentifier() (*big.Int) {
+func CreateRandomIdentifier(max *big.Int) (*big.Int) {
 	n, _ := rand.Int(rand.Reader, max)
 	return n
 }
