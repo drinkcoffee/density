@@ -61,6 +61,17 @@ func (v *ValueRing) NumIdsInRange(offset, windowSize *big.Int) (int) {
 }
 
 
+// FindNextHighest finds the value that is the next highest in the ring
+func (v *ValueRing) FindNextHighest(offset *big.Int) (int, big.Int) {
+	foundIndex := sort.Search(v.ids.Len(), func(i int) bool { 
+		temp := v.ids.Get(i)
+		return temp.Cmp(offset) == 1})
+	if foundIndex == v.ids.Len() {
+		foundIndex = 0
+	}
+	return foundIndex, v.ids.Get(foundIndex)
+}
+
 // GetRelativeIndex returns the index that is "jump" away from index "from"
 func (v *ValueRing) GetRelativeIndex(from, jump int) (int) {
 	result := (from + jump) % v.ids.Len()
